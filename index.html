@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VelocityIQ — Team Performance Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0c10;
+  --surface: #111318;
+  --surface2: #181b22;
+  --border: #1e2230;
+  --border2: #252a38;
+  --accent: #4A90D9;
+  --accent-dim: #2a5a99;
+  --accent-glow: rgba(74,144,217,0.12);
+  --text: #e8eaf0;
+  --muted: #5a6070;
+  --muted2: #3a4050;
+  --success: #3dd68c;
+  --warning: #f5a623;
+  --danger: #ff5c5c;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: rgba(10,12,16,0.95);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+}
+
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+
+.nav-logo span { color: var(--accent); }
+
+.nav-badge {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  border: 1px solid var(--border2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* HERO */
+.hero {
+  padding: 48px 24px 32px;
+  border-bottom: 1px solid var(--border);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.hero h1 .dim { color: var(--muted); font-weight: 400; }
+
+.hero-sub {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 460px;
+}
+
+/* MAIN LAYOUT */
+.main { max-width: 640px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* SECTION */
+.section { padding: 28px 0; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+}
+
+.section-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* TEAM SETUP */
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.field { margin-bottom: 12px; }
+
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 5px;
+  letter-spacing: 0.05em;
+  font-family: var(--mono);
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 9px 11px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* MEMBER CARDS */
+.member-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+  position: relative;
+  transition: border-color 0.15s;
+}
+
+.member-card:focus-within { border-color: var(--accent-dim); }
+
+.member-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.member-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--muted2);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: color 0.15s;
+}
+.remove-btn:hover { color: var(--danger); }
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* DAYS SELECTOR */
+.days-row {
+  display: grid;
+  grid-template-columns: repeat(7,1fr);
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.day-btn {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 0;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s;
+}
+
+.day-btn.active {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ADD BTN */
+.add-member-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--border2);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: all 0.15s;
+}
+.add-member-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* CATEGORIES */
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.category-item:last-child { border-bottom: none; }
+
+.cat-label { flex: 1; font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.cat-weight {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* CALCULATE BTN */
+.calc-btn {
+  width: 100%;
+  background: var(--accent);
+  border: none;
+  border-radius: 7px;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 14px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  margin-top: 20px;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.calc-btn:hover { opacity: 0.88; }
+.calc-btn:active { transform: scale(0.99); }
+.calc-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* RESULTS */
+.results { display: none; }
+.results.visible { display: block; }
+
+/* SCORE RING */
+.ring-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 0 24px;
+}
+
+.ring-svg { overflow: visible; }
+
+.ring-track { fill: none; stroke: var(--surface2); stroke-width: 8; }
+
+.ring-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 60px 60px;
+  transition: stroke-dasharray 1s cubic-bezier(.4,0,.2,1), stroke 0.3s;
+}
+
+.ring-score {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 28px;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+.ring-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-anchor: middle;
+  fill: var(--muted);
+  text-transform: uppercase;
+}
+
+.verdict-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.verdict-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* TEAM TABLE */
+.team-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+.team-table th {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border2);
+  text-transform: uppercase;
+}
+
+.team-table td {
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.team-table tr:last-child td { border-bottom: none; }
+
+.score-cell {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.bar-wrap { display: flex; align-items: center; gap: 8px; }
+.bar-bg { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s cubic-bezier(.4,0,.2,1); }
+
+/* LEAKS */
+.leak-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: rgba(255,92,92,0.04);
+  border: 1px solid rgba(255,92,92,0.12);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.leak-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--danger);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.leak-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #ff8c8c;
+  line-height: 1.6;
+}
+
+.leak-who {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* STAT GRID */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.stat-box {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 12px 10px;
+}
+
+.stat-val {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-lbl {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* RESET */
+.reset-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 11px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.15s;
+}
+.reset-btn:hover { border-color: var(--muted); color: var(--text); }
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 24px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted2);
+  letter-spacing: 0.1em;
+  border-top: 1px solid var(--border);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+@media (max-width: 400px) {
+  .team-grid, .metrics-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Velocity<span>IQ</span></div>
+  <div class="nav-badge">Beta v1.0</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Team Velocity Tracker</div>
+  <h1>Know your team's<br><span class="dim">actual output.</span></h1>
+  <p class="hero-sub">Weekly performance scoring with automatic leak detection. No vague check-ins. Just data.</p>
+</div>
+
+<div class="main">
+
+  <!-- SECTION 1: TEAM SETUP -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Team Setup</span>
+    </div>
+
+    <div class="team-grid">
+      <div class="field">
+        <label>Company / Team Name</label>
+        <input type="text" id="teamName" placeholder="e.g. Ops Team" />
+      </div>
+      <div class="field">
+        <label>Week Of</label>
+        <input type="text" id="weekOf" placeholder="e.g. Jun 16–21" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Days Worked This Period</label>
+      <div class="days-row" id="daysRow"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: MEMBER INPUT -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Team Members</span>
+    </div>
+
+    <div id="membersContainer"></div>
+    <button class="add-member-btn" onclick="addMember()">+ Add team member</button>
+  </div>
+
+  <!-- SECTION 3: CATEGORIES -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Score Weights</span>
+    </div>
+    <div id="categoryList"></div>
+  </div>
+
+  <button class="calc-btn" id="calcBtn" onclick="calculate()">CALCULATE TEAM VELOCITY</button>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <span class="section-title">Team Score</span>
+      </div>
+
+      <div class="ring-wrap">
+        <svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">
+          <circle class="ring-track" cx="60" cy="60" r="50"/>
+          <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="50"
+            stroke-dasharray="0 314"
+            stroke="#4A90D9"/>
+          <text class="ring-score" id="ringScore" x="60" y="56" fill="#e8eaf0">0</text>
+          <text class="ring-label" x="60" y="72" fill="#5a6070">/ 100</text>
+        </svg>
+        <div class="verdict-label" id="verdictLabel"></div>
+        <div class="verdict-sub" id="verdictSub"></div>
+      </div>
+
+      <div class="stat-grid" id="statGrid"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <span class="section-title">Individual Breakdown</span>
+      </div>
+      <table class="team-table">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Score</th>
+            <th>Hour Ratio</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody id="memberTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="section" id="leaksSection">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <span class="section-title">Operational Leaks</span>
+      </div>
+      <div id="leaksContainer"></div>
+    </div>
+
+    <button class="reset-btn" onclick="resetAll()">RESET & START NEW WEEK</button>
+  </div>
+
+</div>
+
+<footer>VelocityIQ · Built by Azura · No data stored · 2026</footer>
+
+<script>
+const CIRC = 2 * Math.PI * 50;
+
+const DEFAULT_CATEGORIES = [
+  { id: "hours",   label: "Hour Efficiency (Actual / Planned)", weight: 25 },
+  { id: "projects",label: "Projects / Tasks Completed",         weight: 30 },
+  { id: "apps",    label: "Key Deliverables Sent",              weight: 20 },
+  { id: "content", label: "Content / Docs Published",           weight: 15 },
+  { id: "collab",  label: "Team Interactions / Meetings",       weight: 10 },
+];
+
+let members = [];
+let memberCounter = 0;
+let daysWorked = 5;
+
+// DAYS ROW
+function renderDays() {
+  const row = document.getElementById("daysRow");
+  row.innerHTML = "";
+  for (let d = 1; d <= 7; d++) {
+    const btn = document.createElement("button");
+    btn.className = "day-btn" + (daysWorked === d ? " active" : "");
+    btn.textContent = d;
+    btn.onclick = () => { daysWorked = d; renderDays(); };
+    row.appendChild(btn);
+  }
+}
+
+// CATEGORIES
+function renderCategories() {
+  const el = document.getElementById("categoryList");
+  el.innerHTML = DEFAULT_CATEGORIES.map(c => `
+    <div class="category-item">
+      <span class="cat-label">${c.label}</span>
+      <span class="cat-weight">${c.weight}pts</span>
+    </div>
+  `).join("");
+}
+
+// MEMBERS
+function addMember() {
+  const id = ++memberCounter;
+  members.push({ id, name: "", planned: "", actual: "", projects: "", deliverables: "", content: "", collab: "" });
+  renderMembers();
+}
+
+function removeMember(id) {
+  members = members.filter(m => m.id !== id);
+  renderMembers();
+}
+
+function updateMember(id, field, val) {
+  const m = members.find(m => m.id === id);
+  if (m) m[field] = val;
+}
+
+function renderMembers() {
+  const c = document.getElementById("membersContainer");
+  c.innerHTML = members.map((m, i) => `
+    <div class="member-card">
+      <div class="member-header">
+        <span class="member-num">MEMBER ${String(i+1).padStart(2,"0")}</span>
+        <button class="remove-btn" onclick="removeMember(${m.id})">×</button>
+      </div>
+      <div class="field">
+        <label>Name</label>
+        <input type="text" value="${m.name}" placeholder="e.g. Rina"
+          oninput="updateMember(${m.id},'name',this.value)" />
+      </div>
+      <div class="metrics-grid">
+        <div class="field">
+          <label>Planned hrs</label>
+          <input type="number" value="${m.planned}" placeholder="0" min="0" step="0.5"
+            oninput="updateMember(${m.id},'planned',this.value)" />
+        </div>
+        <div class="field">
+          <label>Actual hrs</label>
+          <input type="number" value="${m.actual}" placeholder="0" min="0" step="0.5"
+            oninput="updateMember(${m.id},'actual',this.value)" />
+        </div>
+        <div class="field">
+          <label>Tasks completed</label>
+          <input type="number" value="${m.projects}" placeholder="0" min="0"
+            oninput="updateMember(${m.id},'projects',this.value)" />
+        </div>
+        <div class="field">
+          <label>Deliverables sent</label>
+          <input type="number" value="${m.deliverables}" placeholder="0" min="0"
+            oninput="updateMember(${m.id},'deliverables',this.value)" />
+        </div>
+        <div class="field">
+          <label>Docs / content</label>
+          <input type="number" value="${m.content}" placeholder="0" min="0"
+            oninput="updateMember(${m.id},'content',this.value)" />
+        </div>
+        <div class="field">
+          <label>Team interactions</label>
+          <input type="number" value="${m.collab}" placeholder="0" min="0"
+            oninput="updateMember(${m.id},'collab',this.value)" />
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function scoreColor(s) {
+  if (s >= 85) return "#3dd68c";
+  if (s >= 70) return "#4A90D9";
+  if (s >= 50) return "#f5a623";
+  return "#ff5c5c";
+}
+
+function getVerdict(s) {
+  if (s >= 90) return { label: "ELITE OUTPUT", sub: "Exceptional week. Benchmark this." };
+  if (s >= 75) return { label: "ON TRACK", sub: "Solid execution. One leak to close." };
+  if (s >= 55) return { label: "ACCEPTABLE", sub: "Progress exists. Velocity needs work." };
+  if (s >= 35) return { label: "BELOW TARGET", sub: "Audit your blocks. Reset tomorrow." };
+  return { label: "CRITICAL", sub: "Immediate review required." };
+}
+
+function calcMemberScore(m) {
+  const scale = daysWorked / 5;
+  let score = 0;
+
+  // Hour efficiency (25pts) — reward finishing faster
+  const planned = parseFloat(m.planned) || 0;
+  const actual = parseFloat(m.actual) || 0;
+  if (planned > 0) {
+    const r = actual / planned;
+    if (r >= 0.5 && r <= 1.15) score += 25;
+    else if (r > 1.15 && r <= 1.35) score += 18;
+    else if (r > 1.35) score += 10;
+    else score += Math.round(r * 25);
+  }
+
+  // Tasks (30pts)
+  const proj = parseFloat(m.projects) || 0;
+  score += Math.min(30, Math.round((proj / Math.max(1, 5 * scale)) * 30));
+
+  // Deliverables (20pts)
+  const del = parseFloat(m.deliverables) || 0;
+  score += Math.min(20, Math.round((del / Math.max(1, 8 * scale)) * 20));
+
+  // Content (15pts)
+  const cont = parseFloat(m.content) || 0;
+  score += Math.min(15, Math.round((cont / Math.max(1, 3 * scale)) * 15));
+
+  // Collab (10pts)
+  const col = parseFloat(m.collab) || 0;
+  score += Math.min(10, Math.round((col / Math.max(1, 10 * scale)) * 10));
+
+  return Math.min(100, Math.round(score));
+}
+
+function getLeaks(m, score) {
+  const leaks = [];
+  const planned = parseFloat(m.planned) || 0;
+  const actual = parseFloat(m.actual) || 0;
+  if (planned > 0 && actual / planned > 1.35) leaks.push("Hours exceeded plan by 35%+ — workflow review needed.");
+  if (planned > 0 && actual / planned < 0.4) leaks.push("Actual hours critically low against plan.");
+  if ((parseFloat(m.deliverables) || 0) === 0) leaks.push("Zero deliverables sent this period.");
+  if ((parseFloat(m.projects) || 0) === 0) leaks.push("No tasks completed — productivity stalled.");
+  return leaks;
+}
+
+function animateRing(finalScore, color) {
+  const fill = document.getElementById("ringFill");
+  const scoreEl = document.getElementById("ringScore");
+  fill.style.stroke = color;
+  const target = CIRC * (finalScore / 100);
+  let current = 0;
+  let num = 0;
+  const duration = 900;
+  const start = performance.now();
+
+  function step(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    current = target * ease;
+    num = Math.round(finalScore * ease);
+    fill.setAttribute("stroke-dasharray", `${current} ${CIRC}`);
+    scoreEl.textContent = num;
+    scoreEl.setAttribute("fill", color);
+    if (t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function calculate() {
+  if (members.length === 0) return;
+
+  const scores = members.map(m => ({ m, score: calcMemberScore(m) }));
+  const teamScore = Math.round(scores.reduce((a, b) => a + b.score, 0) / scores.length);
+  const verdict = getVerdict(teamScore);
+  const color = scoreColor(teamScore);
+
+  // Show results
+  document.getElementById("results").classList.add("visible");
+  document.getElementById("verdictLabel").textContent = verdict.label;
+  document.getElementById("verdictLabel").style.color = color;
+  document.getElementById("verdictSub").textContent = verdict.sub;
+
+  // Animate ring
+  animateRing(teamScore, color);
+
+  // Stat grid
+  const totalPlanned = members.reduce((a, m) => a + (parseFloat(m.planned) || 0), 0);
+  const totalActual = members.reduce((a, m) => a + (parseFloat(m.actual) || 0), 0);
+  const effRatio = totalPlanned > 0 ? Math.round((totalActual / totalPlanned) * 100) : 0;
+  const topScore = Math.max(...scores.map(s => s.score));
+
+  document.getElementById("statGrid").innerHTML = `
+    <div class="stat-box">
+      <div class="stat-val">${members.length}</div>
+      <div class="stat-lbl">Members</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">${effRatio}%</div>
+      <div class="stat-lbl">Hour efficiency</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" style="color:${color}">${topScore}</div>
+      <div class="stat-lbl">Top score</div>
+    </div>
+  `;
+
+  // Member table
+  document.getElementById("memberTableBody").innerHTML = scores
+    .sort((a, b) => b.score - a.score)
+    .map(({ m, score }) => {
+      const planned = parseFloat(m.planned) || 0;
+      const actual = parseFloat(m.actual) || 0;
+      const eff = planned > 0 ? Math.round((actual / planned) * 100) : 0;
+      const tasks = parseFloat(m.projects) || 0;
+      const c = scoreColor(score);
+      return `
+        <tr>
+          <td style="font-weight:500">${m.name || "—"}</td>
+          <td class="score-cell" style="color:${c}">${score}</td>
+          <td>
+            <div class="bar-wrap">
+              <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(eff,100)}%;background:${c}"></div></div>
+              <span style="font-family:var(--mono);font-size:11px;color:var(--muted);min-width:32px">${eff}%</span>
+            </div>
+          </td>
+          <td style="font-family:var(--mono);font-size:12px;color:var(--muted)">${tasks} tasks</td>
+        </tr>
+      `;
+    }).join("");
+
+  // Leaks
+  const allLeaks = [];
+  scores.forEach(({ m, score }) => {
+    getLeaks(m, score).forEach(l => allLeaks.push({ who: m.name || "Unknown", text: l }));
+  });
+
+  const leaksEl = document.getElementById("leaksContainer");
+  if (allLeaks.length === 0) {
+    leaksEl.innerHTML = `<div style="font-family:var(--mono);font-size:12px;color:var(--success);letter-spacing:0.1em">No leaks detected. Clean week.</div>`;
+  } else {
+    leaksEl.innerHTML = allLeaks.map(l => `
+      <div class="leak-item">
+        <div class="leak-dot"></div>
+        <div>
+          <div class="leak-text">${l.text}</div>
+          <div class="leak-who">${l.who}</div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // Scroll to results
+  setTimeout(() => document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+}
+
+function resetAll() {
+  members = [];
+  memberCounter = 0;
+  daysWorked = 5;
+  document.getElementById("teamName").value = "";
+  document.getElementById("weekOf").value = "";
+  document.getElementById("results").classList.remove("visible");
+  document.getElementById("ringFill").setAttribute("stroke-dasharray", `0 ${CIRC}`);
+  document.getElementById("ringScore").textContent = "0";
+  renderDays();
+  renderMembers();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// INIT
+renderDays();
+renderCategories();
+addMember();
+</script>
+</body>
+</html>
